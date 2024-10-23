@@ -13,19 +13,22 @@ A common scenario for DASH distribution is that a live distributed content is al
 * Problems from live delivery may be solved, e.g. variable segment durations, or issues of segment unavailability.
 * The content may be augmented with ads.
 
-In both cases, the VoD asset is defined by a time window in the live presentation, whereby each, the start time and end time are defined a Period in the MPD and a media time within the Period. Specifically, 
+In both cases, the VoD asset is defined by a time window in the live presentation, whereby each, the *start time* and *end time* are defined a Period in the MPD and a media time within the Period. Specifically, 
 * the first media presentation time of the new On-Demand presentation is specified by a Period _p0_ of the live service, and the media presentation time _T0_ within this Period _p0_. 
 * the end time of the new On-Demand presentation is specified by a Period _p1_ that is not earlier than Period _p0_ of the live service, and the media presentation time _T1_ within this Period _p1_. 
 
+### Use Cases
 
-### Scheduled and Bounded Live Service transitioned to VoD
-A first scenario for Live Content being converted to VOD is the case that a scheduled live event starting at a known date and time is also made available for On-Demand offering after the live program is completed. 
+At the time of the initial request for this time windowed presentation, or event, two scenarios or use-cases are possible:
+
+1. **Scheduled and Bounded Live Service transitioned to VoD** &mdash; A first scenario for Live Content being converted to VOD is the case that a scheduled live event starting at a known date and time is also made available for On-Demand offering after the live program is completed.   For this case the section [Scheduled and Bounded Live Service transitioned to VoD](#scheduled_and_bounded_live_service_transitioned_to_vod).  Typically, the condition that all content up and until the *end time* is available at the time of the request.
+2. **In-Progress Live Service** &mdash; In this state the *start time* is in the past and the *end time* is in the future.  This is the "start-over" condition, clients may choose to seek to the *start time* to playback the entire event.  The MPD remains `dynamic` until the *end time* is in the past, then transitions to `static` (VoD).  The transition is decribed in the section [Transition between Live and On-Demand](#transition_between_live_and_on-demand)
+
+<!--  I'm not sure how is different, at least from a Content Offering requirements, from the first use case?  I suggest we KISS and remove it
 
 ### Extracting a time period from continuous live
 In the second scenario, the content is trimmed from a longer, e.g. 24/7 stream, at the beginning, the end, or in between. This allows that the content is offered in a recorded fashion to users. For this purpose, it is assumed that there is a start time and end time defined in the live asset.
-
-### Transition between Live and On-Demand
-There may be scenarios, for which service provided in live and on-demand concurrently, or there may be a transition phase. Assume towards the end of a live service, the content and service remains on the portal, but the clients are no longer experience the joining of the live service at the live edge, but the On-Demand service from the start. 
+-->
 
 ## Content Offering Requirements and Recommendations
 
@@ -57,7 +60,7 @@ Specifically on the timing of the Periods,
 * For all cases the _PeriodDuration_ is preferably signaled by removing the `Period@start` attribute for each Period and setting the `Period@duration` attribute to <em>PeriodDuration</em>. However, setting the `Period@start`attribute may also be used. Also, to signal the <em>PeriodDuration</em> of the last Period, the `MPD@mediaPresentationDuration` attribute may be used (NOTE: CHECK PRECEDENCE).
 
 ### Scheduled and Bounded Live Service transitioned to VoD {#corr:scheduled} 
-In the specific scenario for a scheduled service, for which the start and end times of the live and VOD service co-incide, it is recommended that for the live service, the `MPD@availabilityStartTime` is set as the availability time of the initial Period, and the `Period@start` of the first Period of the live service is set to 0. 
+In the specific scenario for a scheduled service, for which the start and end times of the live and VOD service coincide, it is recommended that for the live service, the `MPD@availabilityStartTime` is set as the availability time of the initial Period, and the `Period@start` of the first Period of the live service is set to 0. 
 
 If this is the case, the operations documented in the common aspects in clause [[#corr:common]] are significantly simplified and no changes to period timing are needed. The only modifications to the MPD are as follows: 
 * adding the attribute `MPD@mediaPresentationDuration`
@@ -69,7 +72,13 @@ In the scenario, for which a part from the live service extracted and made avail
 
 
 ### Transition between Live and On-Demand
-In the case of transitioning the services, the content offering should take into account the following guidelines. Generally, in particular in 24/7 live service, or if the VOD service starts before the live service ends, it is discouraged that the the same MPD URL is used for live and On-Demand content. It is preferred to create a new MPD URL for the On-demand content to not confuse clients when transitioning from live to VoD MPD. Note that the same Segments may and should be shared across live and VOD MPD. 
+In this scenario the clients are actively consuming the Live Service either near the live edge or near T0.   and the Content Offering must allow this consumption to continue, uninterrupted until the end of 
+
+In the case of transitioning the services, the content offering should take into account the following guidelines. 
+
+
+
+Generally, in particular in 24/7 live service, or if the VOD service starts before the live service ends, it is discouraged that the the same MPD URL is used for live and On-Demand content. It is preferred to create a new MPD URL for the On-demand content to not confuse clients when transitioning from live to VoD MPD. Note that the same Segments may and should be shared across live and VOD MPD. 
 
 However, there are cases for which a transition from live to On-demand content can be considered at the end of a live service and re-using the existing MPD URL, in particular when the live service follows the specific restrictions in section [[#corr:scheduled]].
 
@@ -122,7 +131,7 @@ DASH clients should support the transition from **<code>MPD@type</code></strong>
 
 
 
-            
+​            
 
 
 
